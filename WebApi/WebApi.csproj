@@ -5,12 +5,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="MongoDB.Driver" Version="2.10.0" />
       <PackageReference Include="MongoDB.Driver.Core" Version="2.10.0" />
       <PackageReference Include="Nominatim.API" Version="1.5.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Data" />
     </ItemGroup>
 
 

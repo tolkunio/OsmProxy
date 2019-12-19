@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using WebApi.Data;
+using WebApi.Models;
 
 namespace WebApi
 {
@@ -25,6 +28,11 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<OsmProxyDatabaseSettings>(
+                Configuration.GetSection(nameof(OsmProxyDatabaseSettings)));
+            services.AddSingleton<IOsmProxyDatabaseSettings>(sp =>
+            sp.GetRequiredService<IOptions<OsmProxyDatabaseSettings>>().Value);
+            services.AddSingleton<ICachedResponseManager, CachedResponseManager>();
             services.AddControllers();
         }
 
