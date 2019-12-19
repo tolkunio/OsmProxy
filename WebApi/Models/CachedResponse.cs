@@ -12,6 +12,6 @@ namespace WebApi.Models
 
         public string SearchText { get; set; }
 
-        public GeocodeResponse Content { get; set; }
+        public GeocodeResponse[] Content { get; set; }
     }
 }

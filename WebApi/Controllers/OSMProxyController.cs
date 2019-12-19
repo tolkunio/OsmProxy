@@ -22,28 +22,22 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public Task<GeocodeResponse[]> Search(string searchString)
+        public async Task<GeocodeResponse[]> Search(string searchString)
         {
-            var gList = new List<GeocodeResponse>();
             _logger.LogInformation("");
 
             if (string.IsNullOrEmpty(searchString))
                 return null;
 
-            var cacheList = _cacheManager.Get(searchString);
-            if (cacheList.Count>0)
+            var cacheResponse = _cacheManager.Get(searchString);
+            if (cacheResponse != null)
             {
-                foreach (var cache in cacheList)
-                {
-                    gList.Add(cache.Content);
-                }
-
-                return new Task<GeocodeResponse[]>(gList.ToArray);
+                return await Task.FromResult(cacheResponse.Content);
             }
 
             var forwardGeocoder = new ForwardGeocoder();
 
-            var geocodeList = forwardGeocoder.Geocode(new ForwardGeocodeRequest
+            var geocodeList = await forwardGeocoder.Geocode(new ForwardGeocodeRequest
             {
                 queryString = searchString,
                 BreakdownAddressElements = true,
@@ -51,6 +45,8 @@ namespace WebApi.Controllers
                 ShowAlternativeNames = true,
                 ShowGeoJSON = true
             });
+            _cacheManager.CacheResponse(geocodeList, searchString);
+
             return geocodeList;
         }
     }

@@ -10,5 +10,6 @@ namespace WebApi.Data
          string OsmCollectionName { get; set; }
          string ConnectionString { get; set; }
          string DatabaseName { get; set; }
+         int CacheDurationHours { get; set; }
     }
 }

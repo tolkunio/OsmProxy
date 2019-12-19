@@ -5,8 +5,8 @@ namespace WebApi.Models
 {
     public interface ICachedResponseManager
     {
-        List<CachedResponse> Get(string searchString);
-        void CacheResponse(GeocodeResponse geocodeResponse,string searchText);
+        CachedResponse Get(string searchString);
+        void CacheResponse(GeocodeResponse[] geocodeResponse,string searchText);
         void ClearCache();
     }
 }
