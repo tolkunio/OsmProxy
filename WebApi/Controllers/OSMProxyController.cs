@@ -24,12 +24,13 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<GeocodeResponse[]> Search(string searchString)
         {
+            string searchRequest = searchString.ToLower();
             _logger.LogInformation("");
 
             if (string.IsNullOrEmpty(searchString))
                 return null;
 
-            var cacheResponse = _cacheManager.Get(searchString);
+            var cacheResponse = _cacheManager.Get(searchRequest);
             if (cacheResponse != null)
             {
                 return await Task.FromResult(cacheResponse.Content);

@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using WebApi.BackgroundTasks;
 using WebApi.Data;
 using WebApi.Models;
 
@@ -28,6 +29,7 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHostedService<ClearCacheStarter>();
             services.Configure<OsmProxyDatabaseSettings>(
                 Configuration.GetSection(nameof(OsmProxyDatabaseSettings)));
             services.AddSingleton<IOsmProxyDatabaseSettings>(sp =>
