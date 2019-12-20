@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using Nominatim.API.Geocoders;
 using Nominatim.API.Models;
 using WebApi.Models;
@@ -31,14 +33,33 @@ namespace WebApi.Controllers
                 return null;
 
             var cacheResponse = _cacheManager.Get(searchRequest);
+           
             if (cacheResponse != null)
             {
-                return await Task.FromResult(cacheResponse.Content);
+                if (_cacheManager.IsActualCache(cacheResponse))
+                {
+                    return await Task.FromResult(cacheResponse.Content);
+                }
+                var actualCache = new CachedResponse
+                {
+                    Id = cacheResponse.Id,
+                    SearchText = cacheResponse.SearchText,
+                    CreatedAt = DateTime.Now,
+                    Content = await GetGeocodeResponse(searchRequest)
+                };
+                _cacheManager.UpdateCachedResponse(cacheResponse.Id, actualCache);
+                return actualCache.Content;
             }
 
-            var forwardGeocoder = new ForwardGeocoder();
+            var geocodeArray = await GetGeocodeResponse(searchString);
+            _cacheManager.CacheResponse(geocodeArray, searchString);
 
-            var geocodeList = await forwardGeocoder.Geocode(new ForwardGeocodeRequest
+            return geocodeArray;
+        }
+
+        public async Task<GeocodeResponse[]> GetGeocodeResponse(string searchString)
+        {
+            return await new ForwardGeocoder().Geocode(new ForwardGeocodeRequest
             {
                 queryString = searchString,
                 BreakdownAddressElements = true,
@@ -46,9 +67,6 @@ namespace WebApi.Controllers
                 ShowAlternativeNames = true,
                 ShowGeoJSON = true
             });
-            _cacheManager.CacheResponse(geocodeList, searchString);
-
-            return geocodeList;
         }
     }
 }

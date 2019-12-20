@@ -36,11 +36,14 @@ namespace WebApi.Models
             };
             _cachedResponses.InsertOne(cacheResponse);
         }
-
-        public void ClearCache()
+        public bool IsActualCache(CachedResponse cache)
         {
-           var dateDiff= DateTime.Now.Subtract(TimeSpan.FromHours(settings.CacheDurationHours));
-            _cachedResponses.DeleteMany(cache=>cache.CreatedAt<dateDiff);
+           return (DateTime.Now - cache.CreatedAt).TotalHours < settings.CacheDurationHours;
+        }
+
+        public void UpdateCachedResponse(ObjectId id, CachedResponse cacheIn)
+        {
+            _cachedResponses.ReplaceOne(cache => cache.Id == id, cacheIn);
         }
     }
 }

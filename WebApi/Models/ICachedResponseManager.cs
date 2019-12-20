@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MongoDB.Bson;
 using Nominatim.API.Models;
 
 namespace WebApi.Models
@@ -7,6 +8,7 @@ namespace WebApi.Models
     {
         CachedResponse Get(string searchString);
         void CacheResponse(GeocodeResponse[] geocodeResponse,string searchText);
-        void ClearCache();
+        bool IsActualCache(CachedResponse cache);
+        void UpdateCachedResponse(ObjectId id, CachedResponse cacheIn);
     }
 }

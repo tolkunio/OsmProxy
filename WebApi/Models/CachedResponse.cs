@@ -1,5 +1,6 @@
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Nominatim.API.Models;
 
 namespace WebApi.Models
@@ -8,6 +9,7 @@ namespace WebApi.Models
     {
         public ObjectId Id { get; set; }
 
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime CreatedAt { get; set; }
 
         public string SearchText { get; set; }
