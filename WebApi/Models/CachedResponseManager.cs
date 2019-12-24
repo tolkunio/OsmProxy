@@ -9,20 +9,15 @@ namespace WebApi.Models
 {
     public class CachedResponseManager : ICachedResponseManager
     {
-        private readonly IMongoCollection<CachedResponse> _cachedResponses;
-        private IOsmProxyDatabaseSettings settings;
+        private readonly IOsmProxyContext _cacheContext; 
 
-        public CachedResponseManager(IOsmProxyDatabaseSettings settings)
+        public CachedResponseManager(IOsmProxyContext cacheContext)
         {
-            this.settings = settings;
-
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-            _cachedResponses = database.GetCollection<CachedResponse>(settings.OsmCollectionName);
+            this._cacheContext = cacheContext;
         }
         public CachedResponse Get(string searchString)
         {
-            return _cachedResponses.Find<CachedResponse>(cache => cache.SearchText == searchString).FirstOrDefault();
+            return _cacheContext.CachedResponses.Find(cache => cache.SearchText == searchString).FirstOrDefault();
         }
 
         public void CacheResponse(GeocodeResponse[] geocodeResponse, string searchText)
@@ -34,16 +29,16 @@ namespace WebApi.Models
                 CreatedAt = DateTime.Now,
                 Content = geocodeResponse
             };
-            _cachedResponses.InsertOne(cacheResponse);
+            _cacheContext.CachedResponses.InsertOne(cacheResponse);
         }
         public bool IsActualCache(CachedResponse cache)
         {
-           return (DateTime.Now - cache.CreatedAt).TotalHours < settings.CacheDurationHours;
+           return (DateTime.Now - cache.CreatedAt).TotalHours < _cacheContext.CacheDurationHours;
         }
 
         public void UpdateCachedResponse(ObjectId id, CachedResponse cacheIn)
         {
-            _cachedResponses.ReplaceOne(cache => cache.Id == id, cacheIn);
+            _cacheContext.CachedResponses.ReplaceOne(cache => cache.Id == id, cacheIn);
         }
     }
 }

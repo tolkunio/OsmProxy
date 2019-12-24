@@ -11,9 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using WebApi.BackgroundTasks;
 using WebApi.Data;
 using WebApi.Models;
+using WebApi.Services;
 
 namespace WebApi
 {
@@ -33,8 +33,14 @@ namespace WebApi
                 Configuration.GetSection(nameof(OsmProxyDatabaseSettings)));
             services.AddSingleton<IOsmProxyDatabaseSettings>(sp =>
             sp.GetRequiredService<IOptions<OsmProxyDatabaseSettings>>().Value);
+            ConfigureCustomServices(services);
+            services.AddControllers(); }
+
+        public virtual void ConfigureCustomServices(IServiceCollection services)
+        {
+            services.AddTransient<IOsmProxyContext, OsmProxyContext>();
             services.AddSingleton<ICachedResponseManager, CachedResponseManager>();
-            services.AddControllers();
+            services.AddSingleton<IOsmProxyService, OsmProxyService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
