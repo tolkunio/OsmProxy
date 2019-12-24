@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Nominatim.API.Geocoders;
 using WebApi.Data;
 using WebApi.Models;
 using WebApi.Services;
@@ -32,16 +33,16 @@ namespace WebApi
             services.Configure<OsmProxyDatabaseSettings>(
                 Configuration.GetSection(nameof(OsmProxyDatabaseSettings)));
             services.AddSingleton<IOsmProxyDatabaseSettings>(sp =>
-            sp.GetRequiredService<IOptions<OsmProxyDatabaseSettings>>().Value);
-            ConfigureCustomServices(services);
-            services.AddControllers(); }
+                sp.GetRequiredService<IOptions<OsmProxyDatabaseSettings>>().Value);
 
-        public virtual void ConfigureCustomServices(IServiceCollection services)
-        {
-            services.AddTransient<IOsmProxyContext, OsmProxyContext>();
-            services.AddSingleton<ICachedResponseManager, CachedResponseManager>();
+            services.AddSingleton(it=>new ForwardGeocoder());
+
+            services.AddSingleton<ICachedResponseStore, CachedResponseStore>();
             services.AddSingleton<IOsmProxyService, OsmProxyService>();
+
+            services.AddControllers();
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

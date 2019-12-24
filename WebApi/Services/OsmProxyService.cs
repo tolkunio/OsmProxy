@@ -10,27 +10,29 @@ namespace WebApi.Services
 {
     public class OsmProxyService : IOsmProxyService
     {
-        private readonly ICachedResponseManager _cacheManager;
+        private readonly ICachedResponseStore _cacheStore;
+        private readonly ForwardGeocoder _geocoder;
 
-        public OsmProxyService(ICachedResponseManager cacheManager)
+        public OsmProxyService(ICachedResponseStore cacheStore, ForwardGeocoder geocoder)
         {
-            _cacheManager = cacheManager;
+            _cacheStore = cacheStore;
+            _geocoder = geocoder;
         }
 
         public async Task<GeocodeResponse[]> Search(string searchText)
         {
             var normalizedSearchText = searchText.ToLower();
 
-            var cacheResponse = _cacheManager.Get(searchText);
+            var cacheResponse = _cacheStore.Get(searchText);
 
             if (cacheResponse == null)
             {
                 var response = await RemoteSearch(normalizedSearchText);
-                _cacheManager.CacheResponse(response, normalizedSearchText);
+                _cacheStore.CacheResponse(response, normalizedSearchText);
                 return response;
             }
 
-            if (_cacheManager.IsActualCache(cacheResponse))
+            if (_cacheStore.IsActualCache(cacheResponse))
             {
                 return await Task.FromResult(cacheResponse.Content);
             }
@@ -45,15 +47,13 @@ namespace WebApi.Services
                 Content = geocodeResponses
             };
 
-            _cacheManager.UpdateCachedResponse(cacheResponse.Id, actualCache);
+            _cacheStore.UpdateCachedResponse(cacheResponse.Id, actualCache);
             return geocodeResponses;
         }
 
-        private static async Task<GeocodeResponse[]> RemoteSearch(string normalizedSearchText)
+        private async Task<GeocodeResponse[]> RemoteSearch(string normalizedSearchText)
         {
-            var forwardGeocoder = new ForwardGeocoder();
-
-            return await forwardGeocoder.Geocode(new ForwardGeocodeRequest
+            return await _geocoder.Geocode(new ForwardGeocodeRequest
             {
                 queryString = normalizedSearchText,
                 BreakdownAddressElements = true,

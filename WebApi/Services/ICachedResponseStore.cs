@@ -1,10 +1,10 @@
-using System.Collections.Generic;
 using MongoDB.Bson;
 using Nominatim.API.Models;
+using WebApi.Models;
 
-namespace WebApi.Models
+namespace WebApi.Services
 {
-    public interface ICachedResponseManager
+    public interface ICachedResponseStore
     {
         CachedResponse Get(string searchString);
         void CacheResponse(GeocodeResponse[] geocodeResponse,string searchText);
