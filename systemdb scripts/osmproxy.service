@@ -1,0 +1,6 @@
+[Unit]
+Description = OsmProxy is a service which returns coordinates of a specified ci$
+[Service]
+ExecStart =/bin/bash /usr/bin/osmtestservice.sh
+[Install]
+WantedBy=multi-user.target
