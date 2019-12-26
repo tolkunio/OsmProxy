@@ -1,6 +1,6 @@
 [Unit]
 Description = OsmProxy is a service which returns coordinates of a specified ci$
 [Service]
-ExecStart =/bin/bash /usr/bin/osmtestservice.sh
+ExecStart=/usr/bin/bash -c 'exec dotnet /opt/OsmProxy/WebApi.dll'
 [Install]
 WantedBy=multi-user.target
