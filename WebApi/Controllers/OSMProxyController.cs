@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
-using Nominatim.API.Geocoders;
 using Nominatim.API.Models;
-using WebApi.Models;
 using WebApi.Services;
 
 namespace WebApi.Controllers
